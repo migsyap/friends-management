@@ -28,6 +28,10 @@
         <spring.boot.version>1.5.2.RELEASE</spring.boot.version>
         <spring.cloud.version>Dalston.RELEASE</spring.cloud.version>
         <spring.cloud-services.version>1.4.1.RELEASE</spring.cloud-services.version>
+
+        <sonar.exclusions>
+            **/Application.java, **/db/*.java, **/db/entity/*.java, **/db/repo/*.java, **/exception/*.java
+        </sonar.exclusions>
     </properties>
 
     <dependencies>
@@ -86,6 +90,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
             <version>1.30</version>
@@ -117,4 +127,21 @@
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <finalName>${artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>Application</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
