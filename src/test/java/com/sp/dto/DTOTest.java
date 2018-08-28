@@ -30,4 +30,20 @@ public class DTOTest {
         assert ("mike@mail.com".equals(request.getEmail1()));
         assert ("george@mail.com".equals(request.getEmail2()));
     }
+
+    @Test
+    public void subscriptionRequest__invalid_request() {
+        SubscriptionRequest request = SubscriptionRequest.builder().requestor("mike@mail.com").build();
+        assert (!request.isValidRequest());
+        assert (StringUtils.isBlank(request.getRequestor()));
+        assert (StringUtils.isBlank(request.getTarget()));
+    }
+
+    @Test
+    public void subscriptionRequest__valid_request() {
+        SubscriptionRequest request = SubscriptionRequest.builder().requestor("mike@mail.com").target("george@mail.com").build();
+        assert (request.isValidRequest());
+        assert ("mike@mail.com".equals(request.getRequestor()));
+        assert ("george@mail.com".equals(request.getTarget()));
+    }
 }
