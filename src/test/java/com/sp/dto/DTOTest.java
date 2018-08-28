@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static java.util.Collections.singletonList;
@@ -45,5 +46,26 @@ public class DTOTest {
         assert (request.isValidRequest());
         assert ("mike@mail.com".equals(request.getRequestor()));
         assert ("george@mail.com".equals(request.getTarget()));
+    }
+
+    @Test
+    public void updateRequest__invalid_request() {
+        UpdateRequest request = UpdateRequest.builder().sender("mike@mail.com").build();
+        assert (!request.isValidRequest());
+        assert (StringUtils.isBlank(request.getSender()));
+        assert (StringUtils.isBlank(request.getText()));
+    }
+
+    @Test
+    public void updateRequest__valid_request() {
+        UpdateRequest request = UpdateRequest.builder().sender("mike@mail.com").text("hello george@mail.com and matt@mail.com").build();
+        assert (request.isValidRequest());
+        assert ("mike@mail.com".equals(request.getSender()));
+        assert ("hello george@mail.com and matt@mail.com".equals(request.getText()));
+
+        List<String> mentions = request.getMentions();
+        assert (!mentions.isEmpty());
+        assert (mentions.size() == 2);
+        assert (mentions.stream().allMatch(Arrays.asList("george@mail.com", "matt@mail.com")::contains));
     }
 }

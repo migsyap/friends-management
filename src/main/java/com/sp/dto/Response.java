@@ -23,4 +23,7 @@ public class Response {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer count;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<String> recipients;
 }

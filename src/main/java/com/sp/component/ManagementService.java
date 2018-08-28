@@ -7,6 +7,7 @@ import com.sp.db.repo.SubscriptionsRepository;
 import com.sp.dto.ConnectionRequest;
 import com.sp.dto.FindConnectionsRequest;
 import com.sp.dto.SubscriptionRequest;
+import com.sp.dto.UpdateRequest;
 import com.sp.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -127,5 +128,26 @@ public class ManagementService {
                 .createdOn(Optional.ofNullable(subscription.getCreatedOn()).orElse(now))
                 .modifiedOn(now)
                 .build());
+    }
+
+    public List<String> findRecipientsOfUpdate(UpdateRequest request) throws BusinessException {
+        if (!request.isValidRequest()) throw new InvalidUpdateException();
+
+        List<String> friends = findConnections(FindConnectionsRequest.builder().email(request.getSender()).build());
+
+        List<String> followers = subscriptions.findSubscriptionsByTargetIgnoreCaseAndBlockedIsFalse(request.getSender())
+                .filter(CollectionUtils::isNotEmpty)
+                .orElse(Collections.emptyList())
+                .stream().map(Subscription::getRequestor).collect(Collectors.toList());
+
+        List<String> blockedList = Stream.of(
+                Optional.ofNullable(subscriptions.findSubscriptionsByRequestorIgnoreCaseAndBlockedIsTrue(request.getSender())).orElse(Collections.emptyList()).stream().map(Subscription::getTarget).collect(Collectors.toList()),
+                Optional.ofNullable(subscriptions.findSubscriptionsByTargetIgnoreCaseAndBlockedIsTrue(request.getSender())).orElse(Collections.emptyList()).stream().map(Subscription::getRequestor).collect(Collectors.toList())
+        ).flatMap(List::stream).collect(Collectors.toList());
+
+        return new ArrayList<>(CollectionUtils.removeAll(
+                Stream.of(friends, followers, request.getMentions()).flatMap(List::stream).distinct().collect(Collectors.toList()),
+                blockedList
+        ));
     }
 }

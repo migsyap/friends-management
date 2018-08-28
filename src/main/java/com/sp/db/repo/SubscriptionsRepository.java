@@ -12,4 +12,10 @@ public interface SubscriptionsRepository extends JpaRepository<Subscription, Str
     Optional<List<Subscription>> findSubscriptionsByRequestorIgnoreCaseAndTargetIgnoreCase(String requestor, String target);
 
     Optional<List<Subscription>> findSubscriptionsByRequestorIgnoreCaseAndTargetIgnoreCaseAndBlockedIsTrue(String requestor, String target);
+
+    Optional<List<Subscription>> findSubscriptionsByTargetIgnoreCaseAndBlockedIsFalse(String target);
+
+    List<Subscription> findSubscriptionsByRequestorIgnoreCaseAndBlockedIsTrue(String requestor);
+
+    List<Subscription> findSubscriptionsByTargetIgnoreCaseAndBlockedIsTrue(String target);
 }

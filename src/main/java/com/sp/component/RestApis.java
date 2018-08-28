@@ -3,6 +3,7 @@ package com.sp.component;
 import com.sp.dto.ConnectionRequest;
 import com.sp.dto.FindConnectionsRequest;
 import com.sp.dto.SubscriptionRequest;
+import com.sp.dto.UpdateRequest;
 import com.sp.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,5 +75,15 @@ public class RestApis {
         }
 
         return SUCCESS; // no error means successful
+    }
+
+    @PostMapping("/find/recipients")
+    ResponseEntity findRecipientsOfUpdate(@RequestBody UpdateRequest request) {
+        try {
+            return SUCCESS_RECIPIENTS.apply(manager.findRecipientsOfUpdate(request));
+        } catch (BusinessException be) {
+            log.error("Error in getting recipients of this update", be);
+            return FAILURE.apply(be.getMessage());
+        }
     }
 }
