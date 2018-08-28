@@ -1,0 +1,1 @@
+ALTER TABLE subscriptions add blocked BOOLEAN NOT NULL;

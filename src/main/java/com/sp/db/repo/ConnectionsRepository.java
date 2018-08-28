@@ -10,4 +10,8 @@ import java.util.Optional;
 @Repository
 public interface ConnectionsRepository extends JpaRepository<Connection, String> {
     Optional<List<Connection>> findConnectionsByEmail1IgnoreCaseAndEmail2IgnoreCase(String email1, String email2);
+
+    List<Connection> findConnectionsByEmail1IgnoreCase(String email1);
+
+    List<Connection> findConnectionsByEmail2IgnoreCase(String email2);
 }

@@ -2,6 +2,7 @@ package com.sp.component;
 
 import com.sp.db.entity.Connection;
 import com.sp.db.repo.ConnectionsRepository;
+import com.sp.db.repo.SubscriptionsRepository;
 import com.sp.dto.ConnectionRequest;
 import com.sp.exception.BusinessException;
 import com.sp.exception.ConnectionEstablishedException;
@@ -23,15 +24,19 @@ import static org.mockito.Mockito.when;
 @Slf4j
 public class ServiceTest {
     @InjectMocks
-    private FriendsService friends;
+    private ManagementService manager;
 
     @Mock
-    private ConnectionsRepository connection;
+    private ConnectionsRepository connections;
+
+    @Mock
+    private SubscriptionsRepository subscriptions;
 
     @Before
     public void init() {
-        connection = mock(ConnectionsRepository.class);
-        friends = new FriendsService(connection);
+        connections = mock(ConnectionsRepository.class);
+        subscriptions = mock(SubscriptionsRepository.class);
+        manager = new ManagementService(connections, subscriptions);
     }
 
     @Test
@@ -39,7 +44,7 @@ public class ServiceTest {
         ConnectionRequest request = ConnectionRequest.builder().build();
 
         try {
-            friends.createConnection(request);
+            manager.createConnection(request);
         } catch (BusinessException be) {
             log.info("expected error ::: {}", be.getMessage());
             assert (be instanceof InvalidConnectionException);
@@ -55,10 +60,10 @@ public class ServiceTest {
                 .build();
 
         ConnectionRequest request = ConnectionRequest.builder().friends(Arrays.asList("mike@mail.com", "george@mail.com")).build();
-        when(connection.findConnectionsByEmail1IgnoreCaseAndEmail2IgnoreCase(anyString(), anyString())).thenReturn(Optional.of(Collections.singletonList(testConnection)));
+        when(connections.findConnectionsByEmail1IgnoreCaseAndEmail2IgnoreCase(anyString(), anyString())).thenReturn(Optional.of(Collections.singletonList(testConnection)));
 
         try {
-            friends.createConnection(request);
+            manager.createConnection(request);
         } catch (BusinessException be) {
             log.info("expected error ::: {}", be.getMessage());
             assert (be instanceof ConnectionEstablishedException);
@@ -68,10 +73,10 @@ public class ServiceTest {
     @Test
     public void createConnection__success() {
         ConnectionRequest request = ConnectionRequest.builder().friends(Arrays.asList("mike@mail.com", "george@mail.com")).build();
-        when(connection.findConnectionsByEmail1IgnoreCaseAndEmail2IgnoreCase(anyString(), anyString())).thenReturn(Optional.of(Collections.emptyList()));
+        when(connections.findConnectionsByEmail1IgnoreCaseAndEmail2IgnoreCase(anyString(), anyString())).thenReturn(Optional.of(Collections.emptyList()));
 
         try {
-            friends.createConnection(request);
+            manager.createConnection(request);
         } catch (BusinessException be) {
             log.info("unexpected error ::: {}", be.getMessage());
         }

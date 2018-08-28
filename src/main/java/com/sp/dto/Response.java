@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,4 +17,10 @@ public class Response {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String message;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<String> friends;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer count;
 }

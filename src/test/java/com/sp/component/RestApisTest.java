@@ -23,12 +23,12 @@ public class RestApisTest {
     private RestApis controller;
 
     @Mock
-    private FriendsService friends;
+    private ManagementService manager;
 
     @Before
     public void init() {
-        friends = mock(FriendsService.class);
-        controller = new RestApis(friends);
+        manager = mock(ManagementService.class);
+        controller = new RestApis(manager);
     }
 
     @Test
@@ -36,7 +36,7 @@ public class RestApisTest {
         ResponseEntity resp;
         Response r;
 
-        Mockito.doThrow(new BusinessException("test exception")).when(friends).createConnection(any(ConnectionRequest.class));
+        Mockito.doThrow(new BusinessException("test exception")).when(manager).createConnection(any(ConnectionRequest.class));
         resp = controller.connect(ConnectionRequest.builder().build());
         assert (HttpStatus.NOT_ACCEPTABLE.equals(resp.getStatusCode()));
         assert (resp.getBody() instanceof Response);
@@ -52,7 +52,7 @@ public class RestApisTest {
         ResponseEntity resp;
         Response r;
 
-        doNothing().when(friends).createConnection(any(ConnectionRequest.class));
+        doNothing().when(manager).createConnection(any(ConnectionRequest.class));
         resp = controller.connect(ConnectionRequest.builder().build());
         assert (HttpStatus.OK.equals(resp.getStatusCode()));
         assert (resp.getBody() instanceof Response);
