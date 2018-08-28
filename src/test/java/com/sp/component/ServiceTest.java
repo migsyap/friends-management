@@ -7,6 +7,7 @@ import com.sp.db.repo.SubscriptionsRepository;
 import com.sp.dto.ConnectionRequest;
 import com.sp.dto.FindConnectionsRequest;
 import com.sp.dto.SubscriptionRequest;
+import com.sp.dto.UpdateRequest;
 import com.sp.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -230,6 +231,48 @@ public class ServiceTest {
         try {
             when(subscriptions.findSubscriptionsByRequestorIgnoreCaseAndTargetIgnoreCase(anyString(), anyString())).thenReturn(Optional.of(Collections.emptyList()));
             manager.block(request);
+        } catch (BusinessException be) {
+            log.info("unexpected error ::: {}", be.getMessage());
+        }
+    }
+
+    @Test
+    public void findRecipientsOfUpdate__invalid_request() {
+        UpdateRequest request = UpdateRequest.builder().build();
+
+        try {
+            manager.findRecipientsOfUpdate(request);
+        } catch (BusinessException be) {
+            log.info("expected error ::: {}", be.getMessage());
+            assert (be instanceof InvalidUpdateException);
+        }
+    }
+
+    @Test
+    public void findRecipientsOfUpdate__success() {
+        // Sender of the update is mike
+
+        // Mentions - george & michael
+        UpdateRequest request = UpdateRequest.builder().sender("mike@mail.com").text("hello george@mail.com and michael@mail.com").build();
+
+        // Friends - matt & shannon
+        when(connections.findConnectionsByEmail1IgnoreCase(anyString())).thenReturn(Collections.singletonList(Connection.builder().email2("matt@mail.com").build()));
+        when(connections.findConnectionsByEmail2IgnoreCase(anyString())).thenReturn(Collections.singletonList(Connection.builder().email1("shannon@mail.com").build()));
+
+        // Follower - nigella
+        when(subscriptions.findSubscriptionsByTargetIgnoreCaseAndBlockedIsFalse(anyString())).thenReturn(Optional.of(Collections.singletonList(Subscription.builder().requestor("nigella@mail.com").build())));
+
+        // mike has blocked shannon
+        when(subscriptions.findSubscriptionsByRequestorIgnoreCaseAndBlockedIsTrue(anyString())).thenReturn(Collections.singletonList(Subscription.builder().target("shannon@mail.com").build()));
+
+        // george has blocked mike
+        when(subscriptions.findSubscriptionsByTargetIgnoreCaseAndBlockedIsTrue(anyString())).thenReturn(Collections.singletonList(Subscription.builder().requestor("george@mail.com").build()));
+
+        try {
+            List<String> recipients = manager.findRecipientsOfUpdate(request);
+            assert (Objects.nonNull(recipients));
+            assert (!recipients.isEmpty());
+            assert (recipients.stream().allMatch(Arrays.asList("michael@mail.com", "matt@mail.com", "nigella@mail.com")::contains));
         } catch (BusinessException be) {
             log.info("unexpected error ::: {}", be.getMessage());
         }

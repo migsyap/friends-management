@@ -1,9 +1,6 @@
 package com.sp.component;
 
-import com.sp.dto.ConnectionRequest;
-import com.sp.dto.FindConnectionsRequest;
-import com.sp.dto.Response;
-import com.sp.dto.SubscriptionRequest;
+import com.sp.dto.*;
 import com.sp.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -195,5 +192,39 @@ public class RestApisTest {
         r = (Response) resp.getBody();
         assert (r.isSuccess());
         assert (StringUtils.isBlank(r.getMessage()));
+    }
+
+    @Test
+    public void findRecipientsOfUpdate__business_exception() throws BusinessException {
+        ResponseEntity resp;
+        Response r;
+
+        Mockito.doThrow(new BusinessException("test exception")).when(manager).findRecipientsOfUpdate(any(UpdateRequest.class));
+        resp = controller.findRecipientsOfUpdate(UpdateRequest.builder().build());
+        assert (HttpStatus.NOT_ACCEPTABLE.equals(resp.getStatusCode()));
+        assert (resp.getBody() instanceof Response);
+
+        r = (Response) resp.getBody();
+        assert (Objects.nonNull(r));
+        assert (!r.isSuccess());
+        assert ("test exception".equals(r.getMessage()));
+    }
+
+    @Test
+    public void findRecipientsOfUpdate__success() throws BusinessException {
+        UpdateRequest request = UpdateRequest.builder().sender("mike@mail.com").text("hello george@mail.com").build();
+        Response r;
+
+        when(manager.findRecipientsOfUpdate(eq(request))).thenReturn(Collections.singletonList("george@mail.com"));
+        ResponseEntity resp = controller.findRecipientsOfUpdate(request);
+        assert (HttpStatus.OK.equals(resp.getStatusCode()));
+        assert (resp.getBody() instanceof Response);
+
+        r = (Response) resp.getBody();
+        assert (r.isSuccess());
+        assert (Objects.nonNull(r.getRecipients()));
+        assert (!r.getRecipients().isEmpty());
+        assert (r.getRecipients().size() == 1);
+        assert (r.getRecipients().stream().allMatch(Collections.singletonList("george@mail.com")::contains));
     }
 }
