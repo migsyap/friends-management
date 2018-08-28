@@ -48,7 +48,7 @@ public class RestApisTest {
     }
 
     @Test
-    public void connect__invalid_request() throws BusinessException {
+    public void connect__success() throws BusinessException {
         ResponseEntity resp;
         Response r;
 

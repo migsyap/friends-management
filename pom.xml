@@ -30,7 +30,7 @@
         <spring.cloud-services.version>1.4.1.RELEASE</spring.cloud-services.version>
 
         <sonar.exclusions>
-            **/Application.java, **/db/*.java, **/db/entity/*.java, **/db/repo/*.java, **/exception/*.java
+            **/Application.java, **/constant/*.java, **/db/*.java, **/db/entity/*.java, **/db/repo/*.java, **/dto/Response.java, **/exception/*.java
         </sonar.exclusions>
     </properties>
 
